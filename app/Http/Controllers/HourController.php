@@ -47,4 +47,20 @@ class HourController extends Controller
             return redirect()->back()->with('RED', 'YOU HAVE NO RIGHT TO ACCESS THIS SECTION!!!');
         }
     }
+
+    public function edit($id)
+    {
+        $user = Auth::user();
+
+        if($user->isAbleTo('hour-update'))
+        {
+          $date = Hour::find($id);
+
+          if($user->hasRole('superadministrator'))
+          {
+              return view('super.edit-hour', compact('date'));
+          }
+        }
+
+    }
 }

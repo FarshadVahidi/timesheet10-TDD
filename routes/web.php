@@ -28,4 +28,6 @@ Route::group(['middleware' => ['auth:sanctum', 'verified']], function(){
 
     Route::get('/addNewHour',[HourController::class,'routeCheck'])->name('add');
     Route::post('/createNewHour', [HourController::class,'store']);
+
+    Route::get('/hour-update/{id}', [HourController::class, 'edit']);
 });
