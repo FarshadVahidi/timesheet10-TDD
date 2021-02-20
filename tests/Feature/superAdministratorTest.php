@@ -90,6 +90,31 @@ class superAdministratorTest extends TestCase
         $response->assertStatus(302);
     }
 
+
+    /** @test */
+    public function super_administrator_can_update_an_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleSuper();
+        $permit = $this->getPermitCreateHour();
+        $role->attachPermission($permit);
+        $role->attachPermission($this->getPermitUpdate());
+        $user->attachRole($role);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800]);
+
+        $this->assertCount(1, Hour::all());
+        $hour = Hour::first();
+        $this->assertEquals(800, $hour->hour);
+
+        $response = $this->actingAs($user)->get('/hour-update/' .$hour->id);
+        $response->assertViewIs('super.edit-hour');
+        $response->assertSee('super administrator update hour');
+
+    }
+
+
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
      */
@@ -112,6 +137,11 @@ class superAdministratorTest extends TestCase
     private function getPermitCreateHour()
     {
         return Permission::factory()->create(['name' => 'hour-create']);
+    }
+
+    private function getPermitUpdate()
+    {
+        return Permission::factory()->create(['name' => 'hour-update']);
     }
 
 }
