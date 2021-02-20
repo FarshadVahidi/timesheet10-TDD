@@ -27,4 +27,5 @@ Route::group(['middleware' => ['auth:sanctum', 'verified']], function(){
         Route::get('/dashboard', [DashboardController::class, 'authUser'])->name('dashboard');
 
     Route::get('/addNewHour',[HourController::class,'routeCheck'])->name('add');
+    Route::post('/createNewHour', [HourController::class,'store']);
 });
