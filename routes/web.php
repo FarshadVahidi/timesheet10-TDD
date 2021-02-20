@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HourController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,4 +25,6 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ['auth:sanctum', 'verified']], function(){
         Route::get('/dashboard', [DashboardController::class, 'authUser'])->name('dashboard');
+
+    Route::get('/addNewHour',[HourController::class,'routeCheck'])->name('add');
 });
