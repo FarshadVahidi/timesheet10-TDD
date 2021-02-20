@@ -60,6 +60,8 @@ class HourController extends Controller
           {
               return view('super.edit-hour', compact('date'));
           }
+        }else{
+            return redirect(route('login'));
         }
 
     }
