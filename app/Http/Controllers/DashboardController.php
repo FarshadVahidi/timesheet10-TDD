@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class DashboardCountroller extends Controller
+class DashboardController extends Controller
 {
     public function authUser()
     {
-        return redirect(route('/login'));
+        $user = Auth::user();
+        if($user->hasRole('superadministrator'))
+        {
+            return view('super/dashboard');
+        }else
+            return redirect(route('login'));
     }
 }
