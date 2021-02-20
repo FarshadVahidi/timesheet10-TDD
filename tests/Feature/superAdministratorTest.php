@@ -29,4 +29,23 @@ class superAdministratorTest extends TestCase
         $response = $this->actingAs($user)->get('/dashboard')->assertViewIs('super.dashboard');
         $response->assertSee('super administrator dashboard');
     }
+
+    /** @test */
+    public function super_administrator_can_add_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = User::factory()->create();
+        $role = Role::factory()->create(['name' => 'superadministrator']);
+        $permit = Permission::factory()->create(['name'=>'superadministrator']);
+
+        $this->actingAs($user)->get('/addNewHour')->assertRedirect(route('login'));
+
+        $role->attachPermission($permit);
+        $user->attachRole($role);
+
+        $response = $this->actingAs($user)->get('/addNewHour');
+        $response->assertViewIs('super.addHour');
+        $response->assertSee('add new hour');
+    }
 }
