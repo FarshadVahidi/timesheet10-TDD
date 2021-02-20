@@ -10,7 +10,7 @@ class DashboardController extends Controller
     public function authUser()
     {
         $user = Auth::user();
-        if($user->hasRole('superadministrator'))
+        if($user->isSuper())
         {
             return view('super/dashboard');
         }else
