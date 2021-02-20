@@ -39,6 +39,8 @@ class HourController extends Controller
                 }catch(\Exception $exception){
                     return Redirect::back()->withErrors(['MSG', 'THERE WAS PROBLEM AND YOU DATA DOES NOT ADDED TO DATABASE!']);
                 }
+            }else{
+                return redirect(route('add'))->with('DUPLICATE', 'THE ENTERED DATE EXIST');
             }
 
         }else{
