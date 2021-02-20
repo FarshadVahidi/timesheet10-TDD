@@ -114,6 +114,23 @@ class superAdministratorTest extends TestCase
 
     }
 
+    /** @test */
+    public function access_denied_for_update_hour_for_unAuth_user()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleSuper();
+        $role->attachPermission($this->getPermitCreateHour());
+        $user->attachRole($role);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800]);
+        $this->assertCount(1, Hour::all());
+        $hour = Hour::first();
+
+        $this->actingAs($user)->get('/hour-update/' .$hour->id)->assertRedirect(route('login'));
+
+    }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
