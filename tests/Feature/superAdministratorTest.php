@@ -73,6 +73,23 @@ class superAdministratorTest extends TestCase
         $this->assertEquals($user->id, $hour->user_id );
     }
 
+    /** @test */
+    public function super_administrator_duplicate_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleSuper();
+        $permit = $this->getPermitCreateHour();
+        $role->attachPermission($permit);
+        $user->attachRole($role);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800]);
+
+        $response = $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800]);
+        $response->assertSessionHas('DUPLICATE');
+        $response->assertStatus(302);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
      */
