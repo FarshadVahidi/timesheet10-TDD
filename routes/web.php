@@ -38,4 +38,6 @@ Route::group(['middleware' => ['auth:sanctum', 'verified']], function(){
     Route::post('/addNewPerson', [RegisterController::class, 'store']);
 
     Route::get('/staffHour', [HourController::class, 'staffHour'])->name('staffHour');
+
+    Route::get('/hours-detail/{id}', [HourController::class, 'show'])->name('hours-detail');
 });
