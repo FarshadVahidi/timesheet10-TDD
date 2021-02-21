@@ -163,6 +163,33 @@ class superAdministratorTest extends TestCase
         $this->assertEquals(1, $hour->ferie);
     }
 
+    /** @test */
+    public function super_administrator_can_see_all_his_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleSuper();
+        $role->attachPermission($this->getPermitCreateHour());
+        $role->attachPermission($this->getPermitReadHour());
+        $user->attachRole($role);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 'true']);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/02' , 'nonWork' => 'true']);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/03' , 'hour' => 800]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'hour' => 900]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 1000]);
+
+
+        $this->assertCount(5, Hour::all());
+        $response = $this->actingAs($user)->get('/allMyHours')->assertViewIs('super.allHours');
+        $response->assertSeeInOrder(['1983/02/05', '1983/02/04', '1983/02/03', '1983/02/02', '1983/02/01']);
+
+    }
+
+
+
+
+
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
      */
@@ -190,6 +217,11 @@ class superAdministratorTest extends TestCase
     private function getPermitUpdate()
     {
         return Permission::factory()->create(['name' => 'hour-update']);
+    }
+
+    private function getPermitReadHour()
+    {
+        return Permission::factory()->create(['name' => 'hour-read']);
     }
 
 }
