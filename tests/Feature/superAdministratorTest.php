@@ -145,6 +145,23 @@ class superAdministratorTest extends TestCase
         $this->actingAs($user)->get('/hour-update/1')->assertSessionHas('NOTEXIST');
     }
 
+    /** @test */
+    public function the_day_can_be_holiday_or_weekend()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleSuper();
+        $role->attachPermission($this->getPermitCreateHour());
+        $user->attachRole($role);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 'true']);
+
+        $hour = Hour::first();
+
+        $this->assertCount(1, Hour::all());
+        $this->assertNull($hour->hour);
+        $this->assertEquals(1, $hour->ferie);
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
