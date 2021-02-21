@@ -298,6 +298,49 @@ class superAdministratorTest extends TestCase
         $response->assertSee('1500');
     }
 
+    /** @test */
+    public function just_super_admin_can_see_detail_of_hour_of_staff()
+    {
+
+        $this->withoutExceptionHandling();
+        //setting add hour for super administrator
+        $super = $this->getModel();
+        $roleSuper = $this->getRoleSuper();
+        $permit = $this->getPermitCreateHour();
+        $roleSuper->attachPermission($permit);
+        $super->attachRole($roleSuper);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/03' , 'hour' => 800, 'nonWork' => 0]);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/04' , 'hour' => 900, 'nonWork' => 0]);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/05' , 'hour' => 1000, 'nonWork' => 0]);
+
+        //setting add hour for administrator
+        $admin = $this->getModel();
+        $roleAdmin = $this->createRoleAdmin();
+        $roleAdmin->attachPermission($permit);
+        $admin->attachRole($roleAdmin);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/03' , 'hour' => 700, 'nonWork' => 0]);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/04' , 'hour' => 600, 'nonWork' => 0]);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/05' , 'hour' => 500, 'nonWork' => 0]);
+
+        //setting add hour for user
+        $user = $this->getModel();
+        $roleSuper = $this->createRoleUser();
+        $roleSuper->attachPermission($permit);
+        $user->attachRole($roleSuper);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/03' , 'hour' => 500, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'hour' => 500, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 2000, 'nonWork' => 0]);
+
+        $response = $this->actingAs($super)->get('/hours-detail/' . $user->id)->assertViewIs('super.hourdetail');
+        $response->assertSee(2000);
+    }
+
 
 
 
