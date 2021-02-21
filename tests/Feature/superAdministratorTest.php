@@ -59,13 +59,13 @@ class superAdministratorTest extends TestCase
         $role = $this->getRoleSuper();
         $permit = $this->getPermitCreateHour();
 
-        $response = $this->actingAs($user)->post('createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01', 'hour' => 800]);
+        $response = $this->actingAs($user)->post('createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01', 'hour' => 800, 'nonWork' => 0]);
         $response->assertSessionHas('RED');
 
         $role->attachPermission($permit);
         $user->attachRole($role);
 
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01', 'hour' => 800]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01', 'hour' => 800, 'nonWork' => 0]);
 
         $hour = Hour::first();
 
@@ -83,9 +83,9 @@ class superAdministratorTest extends TestCase
         $permit = $this->getPermitCreateHour();
         $role->attachPermission($permit);
         $user->attachRole($role);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
 
-        $response = $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800]);
+        $response = $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
         $response->assertSessionHas('DUPLICATE');
         $response->assertStatus(302);
     }
@@ -102,7 +102,7 @@ class superAdministratorTest extends TestCase
         $role->attachPermission($permit);
         $role->attachPermission($this->getPermitUpdate());
         $user->attachRole($role);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => false]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
 
         $this->assertCount(1, Hour::all());
         $hour = Hour::first();
@@ -123,7 +123,7 @@ class superAdministratorTest extends TestCase
         $role = $this->getRoleSuper();
         $role->attachPermission($this->getPermitCreateHour());
         $user->attachRole($role);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
         $this->assertCount(1, Hour::all());
         $hour = Hour::first();
 
@@ -154,12 +154,12 @@ class superAdministratorTest extends TestCase
         $role = $this->getRoleSuper();
         $role->attachPermission($this->getPermitCreateHour());
         $user->attachRole($role);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 'true']);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
 
         $hour = Hour::first();
 
         $this->assertCount(1, Hour::all());
-        $this->assertNull($hour->hour);
+        $this->assertEquals(0, $hour->hour);
         $this->assertEquals(1, $hour->ferie);
     }
 
@@ -173,11 +173,11 @@ class superAdministratorTest extends TestCase
         $role->attachPermission($this->getPermitCreateHour());
         $role->attachPermission($this->getPermitReadHour());
         $user->attachRole($role);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 'true']);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/02' , 'nonWork' => 'true']);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/03' , 'hour' => 800]);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'hour' => 900]);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 1000]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/03' , 'hour' => 800, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'hour' => 900, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 1000, 'nonWork' => 0]);
 
 
         $this->assertCount(5, Hour::all());
@@ -245,11 +245,57 @@ class superAdministratorTest extends TestCase
 
         $user = $this->getModel();
         $this->getRoleSuper();
-        
+
         $response = $this->actingAs($user)->post('/addNewPerson',['name'=> 'farshad', 'email' => 'farshad@app.com', 'password' => '12345678', 'role_id' => 'superadministrator' ]);
 
         $response->assertSessionHas('RED');
         $this->assertCount(1, User::all());
+    }
+
+    /** @test */
+    public function super_admin_can_see_allHour_of_staff()
+    {
+        $this->withoutExceptionHandling();
+        //setting add hour for super administrator
+        $super = $this->getModel();
+        $roleSuper = $this->getRoleSuper();
+        $permit = $this->getPermitCreateHour();
+        $roleSuper->attachPermission($permit);
+        $super->attachRole($roleSuper);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/03' , 'hour' => 800, 'nonWork' => 0]);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/04' , 'hour' => 900, 'nonWork' => 0]);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/05' , 'hour' => 1000, 'nonWork' => 0]);
+
+        //setting add hour for administrator
+        $admin = $this->getModel();
+        $roleAdmin = $this->createRoleAdmin();
+        $roleAdmin->attachPermission($permit);
+        $admin->attachRole($roleAdmin);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/03' , 'hour' => 700, 'nonWork' => 0]);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/04' , 'hour' => 600, 'nonWork' => 0]);
+        $this->actingAs($admin)->post('/createNewHour', ['user_id' => $admin->id, 'date' => '1983/02/05' , 'hour' => 500, 'nonWork' => 0]);
+
+        //setting add hour for user
+        $user = $this->getModel();
+        $roleSuper = $this->createRoleUser();
+        $roleSuper->attachPermission($permit);
+        $user->attachRole($roleSuper);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/03' , 'hour' => 500, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'hour' => 500, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 500, 'nonWork' => 0]);
+
+        $this->assertCount(15, Hour::all());
+        $super->attachPermission($this->getPermitReadHour());
+
+        $response = $this->actingAs($super)->get('/staffHour')->assertViewIs('super.staffHour');
+        $response->assertViewHas('staffHour');
+        $response->assertSee('1500');
     }
 
 
@@ -298,6 +344,11 @@ class superAdministratorTest extends TestCase
     private function createRoleUser()
     {
         return Role::factory()->create(['name' => 'user']);
+    }
+
+    private function createRoleAdmin()
+    {
+        return Role::factory()->create(['name' => 'administrator']);
     }
 
 }
