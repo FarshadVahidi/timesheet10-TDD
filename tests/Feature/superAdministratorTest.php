@@ -131,6 +131,20 @@ class superAdministratorTest extends TestCase
 
     }
 
+    /** @test */
+    public function if_user_entered_wrong_id_for_update_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleSuper();
+        $role->attachPermission($this->getPermitUpdate());
+        $user->attachRole($role);
+        $this->assertCount(0, Hour::all());
+
+        $this->actingAs($user)->get('/hour-update/1')->assertSessionHas('NOTEXIST');
+    }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
