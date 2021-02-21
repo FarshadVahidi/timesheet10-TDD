@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Hour;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 class HourController extends Controller
@@ -20,6 +21,20 @@ class HourController extends Controller
             return redirect(route('login'));
         }
 
+    }
+
+    public function index()
+    {
+        $user = Auth::user();
+        if($user->isAbleTo('hour-read'))
+        {
+            if($user->hasRole('superadministrator'))
+            {
+                $id = Auth::user()->id;
+                $allMyHours = DB::table('hours')->where('user_id', $id)->orderByRaw('date DESC')->get();
+                return view('super.allHours', compact('allMyHours'));
+            }
+        }
     }
 
     public function store(Request $request)
