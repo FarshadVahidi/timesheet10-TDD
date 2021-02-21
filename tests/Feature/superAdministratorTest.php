@@ -186,6 +186,15 @@ class superAdministratorTest extends TestCase
 
     }
 
+    /** @test */
+    public function if_user_without_permit_readHour_want_to_access_this_secction()
+    {
+        $this->withoutExceptionHandling();
+        $user = new User();
+        $response = $this->actingAs($user)->get('/allMyHours');
+        $response->assertRedirect(route('login'));
+    }
+
 
 
 
