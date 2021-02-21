@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HourController;
+use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,4 +33,6 @@ Route::group(['middleware' => ['auth:sanctum', 'verified']], function(){
     Route::get('/hour-update/{id}', [HourController::class, 'edit']);
 
     Route::get('/allMyHours', [hourController::class, 'index'])->name('Myhours');
+
+    Route::get('/addNewPerson', [RegisterController::class, 'index'])->name('register');
 });
