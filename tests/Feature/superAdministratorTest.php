@@ -238,6 +238,20 @@ class superAdministratorTest extends TestCase
         $response->assertSessionHas('USER-ADDED');
     }
 
+    /** @test */
+    public function unAuth_user_can_not_access_to_route_post_addNewPerson()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $this->getRoleSuper();
+        
+        $response = $this->actingAs($user)->post('/addNewPerson',['name'=> 'farshad', 'email' => 'farshad@app.com', 'password' => '12345678', 'role_id' => 'superadministrator' ]);
+
+        $response->assertSessionHas('RED');
+        $this->assertCount(1, User::all());
+    }
+
 
 
 
