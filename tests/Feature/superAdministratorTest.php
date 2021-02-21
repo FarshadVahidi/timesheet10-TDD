@@ -195,6 +195,21 @@ class superAdministratorTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    /** @test */
+    public function super_administrator_can_add_new_staff()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleSuper();
+        $permit = $this->getPermitCreateUser();
+        $role->attachPermission($permit);
+        $user->attachRole($role);
+
+        $response = $this->actingAs($user)->get('/addNewPerson');
+        $response->assertViewIs('super.registration');
+    }
+
 
 
 
@@ -231,6 +246,11 @@ class superAdministratorTest extends TestCase
     private function getPermitReadHour()
     {
         return Permission::factory()->create(['name' => 'hour-read']);
+    }
+
+    private function getPermitCreateUser()
+    {
+        return Permission::factory()->create(['name' => 'users-create']);
     }
 
 }
