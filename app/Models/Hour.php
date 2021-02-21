@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Laratrust\Models\LaratrustPermission;
+use Illuminate\Database\Eloquent\Model;
 
-class Permission extends LaratrustPermission
+class Hour extends Model
 {
     use HasFactory;
 

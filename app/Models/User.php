@@ -60,4 +60,19 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    public function isSuper(): bool
+    {
+        return ($this->hasRole('superadministrator'));
+    }
+
+    public function userHours(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->hasMany(Hour::class)->orderByRaw('date DESC')->get();
+    }
+
+    public function seeDetailHour($id): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->hasMany(Hour::class)->findOrFail($id)->orderByRaw('date DESC')->get();
+    }
 }
