@@ -33,7 +33,10 @@ class HourController extends Controller
                     $hour = new Hour();
                     $hour->user_id = $request->user()->id;
                     $hour->date = $request->date;
-                    $hour->hour = $request->hour;
+                    if($hour->ferie === false)
+                        $hour->hour = $request->hour;
+                    else
+                        $hour->ferie = true;
                     $hour->save();
                     return redirect()->back()->with('ADDED', 'DATE AND HOUR HAS BEEN ADDED SUCCESSFULLY.');
                 }catch(\Exception $exception){
