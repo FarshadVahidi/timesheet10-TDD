@@ -400,18 +400,54 @@ class superAdministratorTest extends TestCase
         $roleSuper = $this->createRoleUser();
         $roleSuper->attachPermission($permit);
         $user->attachRole($roleSuper);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'hour' => 2000, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 500, 'nonWork' => 0]);
         $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
         $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
         $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/03' , 'hour' => 500, 'nonWork' => 0]);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'hour' => 500, 'nonWork' => 0]);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 2000, 'nonWork' => 0]);
+
 
         $this->assertCount(5, Hour::all());
         $this->assertCount(2, User::all());
+        $hour = Hour::first();
 
-        $response = $this->actingAs($super)->get('/hours-update/5');
+        $response = $this->actingAs($super)->get('/hours-update/'.$hour->id);
         $response->assertViewIs('super.edit-staff-hour');
         $response->assertSee(2000);
+    }
+
+
+    /** @test */
+    public function super_admin_can_delete_other_staff_hours_method_get()
+    {
+        $this->withoutExceptionHandling();
+        //setting add hour for super administrator
+        $super = $this->getModel();
+        $roleSuper = $this->getRoleSuper();
+        $permit = $this->getPermitCreateHour();
+        $roleSuper->attachPermission($permit);
+        $super->attachRole($roleSuper);
+        $super->attachPermission($this->getPermitUpdate());
+
+        //setting add hour for user
+        $user = $this->getModel();
+        $roleSuper = $this->createRoleUser();
+        $roleSuper->attachPermission($permit);
+        $user->attachRole($roleSuper);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 2000, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'hour' => 500, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/02' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/03' , 'hour' => 500, 'nonWork' => 0]);
+
+
+
+        $this->assertCount(5, Hour::all());
+        $this->assertCount(2, User::all());
+        $hour = Hour::first();
+        $this->actingAs($super)->get('/hours-delete/'.$hour->id);
+        $this->assertCount(4, Hour::all());
+
     }
 
 
