@@ -102,7 +102,7 @@ class superAdministratorTest extends TestCase
         $role->attachPermission($permit);
         $role->attachPermission($this->getPermitUpdate());
         $user->attachRole($role);
-        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => false]);
 
         $this->assertCount(1, Hour::all());
         $hour = Hour::first();

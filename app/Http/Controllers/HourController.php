@@ -33,10 +33,7 @@ class HourController extends Controller
                     $hour = new Hour();
                     $hour->user_id = $request->user()->id;
                     $hour->date = $request->date;
-                    if($hour->ferie === false)
-                        $hour->hour = $request->hour;
-                    else
-                        $hour->ferie = true;
+                    $this->checkferie($hour, $request);
                     $hour->save();
                     return redirect()->back()->with('ADDED', 'DATE AND HOUR HAS BEEN ADDED SUCCESSFULLY.');
                 }catch(\Exception $exception){
@@ -67,6 +64,23 @@ class HourController extends Controller
           }
         }else{
             return redirect(route('login'));
+        }
+
+    }
+
+    /**
+     * @param Hour $hour
+     * @param Request $request
+     */
+    private function checkferie(Hour $hour, Request $request): void
+    {
+        if ($request->nonWork === false) {
+            $hour->hour = $request->hour;
+            $hour->ferie = false;
+        }
+        else{
+            $hour->ferie = true;
+            $hour->hour = null;
         }
 
     }
