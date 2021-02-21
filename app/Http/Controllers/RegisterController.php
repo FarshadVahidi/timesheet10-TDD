@@ -23,7 +23,7 @@ class RegisterController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
         if($user->isAbleTo('users-create') && $user->hasRole('superadministrator'))
@@ -44,6 +44,8 @@ class RegisterController extends Controller
             $user->attachRole($request->role_id);
 
             return back()->with('USER-ADDED', 'User added successfully.');
+        }else{
+            return back()->with('RED', 'YOU HAVE NO RIGHT TO ACCESS THIS SECTION!!!');
         }
 
     }
