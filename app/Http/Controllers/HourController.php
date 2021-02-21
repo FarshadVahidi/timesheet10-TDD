@@ -55,6 +55,8 @@ class HourController extends Controller
         if($user->isAbleTo('hour-update'))
         {
           $date = Hour::find($id);
+          if($date === null)
+              return redirect()->back()->with('NOTEXIST', 'DATA DOES NOT EXIST!');
 
           if($user->hasRole('superadministrator'))
           {
