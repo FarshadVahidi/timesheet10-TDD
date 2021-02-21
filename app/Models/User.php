@@ -65,4 +65,9 @@ class User extends Authenticatable
     {
         return ($this->hasRole('superadministrator'));
     }
+
+    public function userHours()
+    {
+        return $this->hasMany(Hour::class)->orderByRaw('date DESC')->get();
+    }
 }
