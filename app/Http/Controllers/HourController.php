@@ -33,6 +33,8 @@ class HourController extends Controller
                 $allMyHours = request()->user()->userHours();
                 return view('super.allHours', compact('allMyHours'));
             }
+        }else{
+            return redirect()->route('login');
         }
     }
 
