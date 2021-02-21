@@ -25,21 +25,26 @@ class RegisterController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name'=>'required|string|max:255',
-            'email'=>'required|string|email|unique:users',
-            'password'=> 'required|min:8',
-            'role_id'=> 'required|string',
-        ]);
+        $user = Auth::user();
+        if($user->isAbleTo('users-create') && $user->hasRole('superadministrator'))
+        {
+            $data = $request->validate([
+                'name'=>'required|string|max:255',
+                'email'=>'required|string|email|unique:users',
+                'password'=> 'required|min:8',
+                'role_id'=> 'required|string',
+            ]);
 
 
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->save();
-        $user->attachRole($request->role_id);
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->password);
+            $user->save();
+            $user->attachRole($request->role_id);
 
-        return back()->with('USER-ADDED', 'User added successfully.');
+            return back()->with('USER-ADDED', 'User added successfully.');
+        }
+
     }
 }
