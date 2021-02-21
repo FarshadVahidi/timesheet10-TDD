@@ -66,8 +66,13 @@ class User extends Authenticatable
         return ($this->hasRole('superadministrator'));
     }
 
-    public function userHours()
+    public function userHours(): \Illuminate\Database\Eloquent\Collection
     {
         return $this->hasMany(Hour::class)->orderByRaw('date DESC')->get();
+    }
+
+    public function seeDetailHour($id): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->hasMany(Hour::class)->findOrFail($id)->orderByRaw('date DESC')->get();
     }
 }

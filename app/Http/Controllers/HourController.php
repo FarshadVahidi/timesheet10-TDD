@@ -99,9 +99,10 @@ class HourController extends Controller
 
     public function show($id)
     {
-        if(Auth::user()->hasRole('superadministrator'))
+        $user = Auth::user();
+        if($user->hasRole('superadministrator'))
         {
-            $data = DB::table('hours')->select('id', 'user_id', 'date', 'hour', 'ferie', 'hours.created_at', 'hours.updated_at')->where('user_id', '=', $id)->orderByRaw('date DESC')->get();
+            $data = $user->seeDetailHour($id);
             return view ('super.hourdetail', compact('data'));
         }else{
             return back()->with('hasNotPermission', 'YOU DO NOT HAVE ACCESS TO THIS SECTION!!!');
