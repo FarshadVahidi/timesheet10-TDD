@@ -115,6 +115,20 @@ class HourController extends Controller
     }
 
 
+    public function destroy($id): \Illuminate\Http\RedirectResponse
+    {
+        if(Auth::user()->hasRole('superadministrator'))
+        {
+            Hour::where('id', $id)->delete();
+            return back()->with('hour_deleted', 'Hour has been deleted successfully!');
+
+        }else
+            return back()->with('alert_deleted', 'You do not have access to delete hour');
+
+    }
+
+
+
 
     /**
      * @param Hour $hour
