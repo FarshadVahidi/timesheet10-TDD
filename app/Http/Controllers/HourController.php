@@ -71,12 +71,17 @@ class HourController extends Controller
         if($user->isAbleTo('hour-update'))
         {
           $date = Hour::find($id);
+
           if($date === null)
               return redirect()->back()->with('NOTEXIST', 'DATA DOES NOT EXIST!');
 
           if($user->hasRole('superadministrator'))
           {
-              return view('super.edit-hour', compact('date'));
+              if($user->id == $date->user_id)
+                return view('super.edit-hour', compact('date'));
+              else
+                  return view('super.edit-staff-hour', compact('date'));
+
           }
         }else{
             return redirect(route('login'));
