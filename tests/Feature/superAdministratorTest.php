@@ -210,6 +210,34 @@ class superAdministratorTest extends TestCase
         $response->assertViewIs('super.registration');
     }
 
+    /** @test */
+    public function access_denied_for_user_without_users_create_permit()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = new User();
+        $this->actingAs($user)->get('/addNewPerson')->assertRedirect(route('login'));
+    }
+
+    /** @test */
+    public function super_administrator_send_post_request_to_add_new_user()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleSuper();
+        $permit = $this->getPermitCreateUser();
+        $role->attachPermission($permit);
+        $user->attachRole($role);
+        $this->createRoleUser();
+
+        $response = $this->actingAs($user)->post('/addNewPerson',['name'=> 'farshad', 'email' => 'farshad@app.com', 'password' => '12345678', 'role_id' => 'user' ]);
+
+        $this->assertCount(2, User::all());
+        $this->assertEquals('farshad', User::find(2)->name);
+        $response->assertSessionHas('USER-ADDED');
+    }
+
 
 
 
@@ -251,6 +279,11 @@ class superAdministratorTest extends TestCase
     private function getPermitCreateUser()
     {
         return Permission::factory()->create(['name' => 'users-create']);
+    }
+
+    private function createRoleUser()
+    {
+        return Role::factory()->create(['name' => 'user']);
     }
 
 }
