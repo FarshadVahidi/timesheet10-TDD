@@ -37,4 +37,5 @@ Route::group(['middleware' => ['auth:sanctum', 'verified']], function(){
     Route::get('/addNewPerson', [RegisterController::class, 'index'])->name('register');
     Route::post('/addNewPerson', [RegisterController::class, 'store']);
 
+    Route::get('/staffHour', [HourController::class, 'staffHour'])->name('staffHour');
 });

@@ -17,7 +17,7 @@ class CreateHoursTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->timestamp('date');
-            $table->integer('hour')->nullable();
+            $table->integer('hour');
             $table->boolean('ferie');
             $table->timestamps();
 

@@ -84,19 +84,31 @@ class HourController extends Controller
 
     }
 
+
+    public function staffHour()
+    {
+        $user = Auth::user();
+        if($user->hasRole('superadministrator') && $user->isAbleTo('hour-read'))
+        {
+            $staffHour = DB::table('users')->join('hours', 'users.id' , '=', 'hours.user_id')->select('users.id', 'users.name', DB::raw('sum(hour) as sum'))
+                ->groupBy('users.id')->orderByRaw('user_id ASC')->get();
+            return view('super.staffHour', compact('staffHour'));
+        }
+    }
+
     /**
      * @param Hour $hour
      * @param Request $request
      */
     private function checkferie(Hour $hour, Request $request): void
     {
-        if ($request->nonWork === false) {
+        if ($request->nonWork === 0) {
             $hour->hour = $request->hour;
             $hour->ferie = false;
         }
         else{
             $hour->ferie = true;
-            $hour->hour = null;
+            $hour->hour = 0;
         }
 
     }
