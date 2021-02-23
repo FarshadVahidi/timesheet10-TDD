@@ -13,7 +13,13 @@ class DashboardController extends Controller
         if($user->isSuper())
         {
             return view('super/dashboard');
-        }else
+        }elseif($user->isAdmin()) {
+            return view('admin/dashboard');
+        }else{
             return redirect(route('login'));
+        }
     }
+
+
+
 }

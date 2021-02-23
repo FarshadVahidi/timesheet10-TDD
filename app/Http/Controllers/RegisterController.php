@@ -17,6 +17,9 @@ class RegisterController extends Controller
             if(request()->user()->hasRole('superadministrator'))
             {
                 return view('super.registration');
+            }elseif(request()->user()->hasRole('administrator'))
+            {
+                return view('admin.registration');
             }
         }else{
             return redirect(route('login'));
@@ -26,7 +29,7 @@ class RegisterController extends Controller
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
-        if($user->isAbleTo('users-create') && $user->hasRole('superadministrator'))
+        if($user->isAbleTo('users-create') && $user->hasRole('superadministrator') || $user->hasRole('administrator'))
         {
             $data = $request->validate([
                 'name'=>'required|string|max:255',
