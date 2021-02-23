@@ -34,6 +34,9 @@ class HourController extends Controller
             {
                 $allMyHours = request()->user()->userHours();
                 return view('super.allHours', compact('allMyHours'));
+            }elseif($user->hasRole('administrator')){
+                $allMyHours = request()->user()->userHours();
+                return view('admin.allHours', compact('allMyHours'));
             }
         }else{
             return redirect()->route('login');
