@@ -99,6 +99,68 @@ class UserTest extends TestCase
 
     }
 
+    /** @test */
+    public function user_can_not_update_other_staff_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $super = $this->getModel();
+        $roleSuper = $this->getRoleSuper();
+        $roleSuper->attachPermission($this->getPermitCreateHour());
+        $super->attachRole($roleSuper);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
+        $this->assertCount(1, Hour::all());
+
+        $hour = Hour::first();
+        $this->assertEquals(800, $hour->hour);
+
+        $user = $this->getModel();
+        $roleUser = $this->getRoleUser();
+        $permitUpdateHour = $this->getPermitUpdate();
+        $roleUser->attachPermission($permitUpdateHour);
+        $user->attachRole($roleUser);
+        $response = $this->actingAs($user)->get('/hour-update/' .$hour->id);
+        $response->assertSessionHas('ALERT');
+    }
+
+
+    /** @test */
+    public function user_can_see_all_his_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleUser();
+        $role->attachPermission($this->getPermitCreateHour());
+        $role->attachPermission($this->getPermitReadHour());
+        $user->attachRole($role);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/02' , 'hour' => 900, 'nonWork' => 0]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/03' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/04' , 'nonWork' => 1]);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/05' , 'hour' => 1000, 'nonWork' => 0]);
+
+        $this->assertCount(5, Hour::all());
+        $response = $this->actingAs($user)->get('/allMyHours')->assertViewIs('user.allHours');
+        $response->assertSeeInOrder(['1983/02/05', '1983/02/04', '1983/02/03', '1983/02/02', '1983/02/01']);
+    }
+
+
+    /** @test */
+    public function user_can_not_add_new_person()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleUser();
+        $user->attachRole($role);
+
+        $response = $this->actingAs($user)->post('/addNewPerson',['name'=> 'farshad', 'email' => 'farshad1@app.com', 'password' => '12345678', 'role_id' => 'user' ]);
+
+        $this->assertCount(1, User::all());
+        $response->assertSessionHas('RED');
+    }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
@@ -121,8 +183,21 @@ class UserTest extends TestCase
         return Permission::factory()->create(['name' => 'hour-create']);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
+     */
+    private function getRoleSuper()
+    {
+        return Role::factory()->create(['name' => 'superadministrator']);
+    }
+
     private function getPermitUpdate()
     {
         return Permission::factory()->create(['name' => 'hour-update']);
+    }
+
+    private function getPermitReadHour()
+    {
+        return Permission::factory()->create(['name' => 'hour-read']);
     }
 }
