@@ -1,1 +1,1 @@
-<?php
+<p>user dashboard</p>
