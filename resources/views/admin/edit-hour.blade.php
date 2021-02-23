@@ -1,1 +1,1 @@
-<?php
+<p>administrator update hour</p>
