@@ -93,6 +93,55 @@ class AdministratorTest extends TestCase
     }
 
 
+
+    /** @test */
+    public function administrator_can_update_an_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleAdmin();
+        $permit = $this->getPermitCreateHour();
+        $role->attachPermission($permit);
+        $role->attachPermission($this->getPermitUpdate());
+        $user->attachRole($role);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
+
+        $this->assertCount(1, Hour::all());
+        $hour = Hour::first();
+        $this->assertEquals(800, $hour->hour);
+
+        $response = $this->actingAs($user)->get('/hour-update/' .$hour->id);
+        $response->assertViewIs('admin.edit-hour');
+        $response->assertSee('administrator update hour');
+
+    }
+
+    /** @test */
+    public function administrator_can_not_update_other_staff_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $super = $this->getModel();
+        $roleSuper = $this->getRoleSuper();
+        $roleSuper->attachPermission($this->getPermitCreateHour());
+        $super->attachRole($roleSuper);
+        $this->actingAs($super)->post('/createNewHour', ['user_id' => $super->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
+        $this->assertCount(1, Hour::all());
+
+        $hour = Hour::first();
+        $this->assertEquals(800, $hour->hour);
+
+        $admin = $this->getModel();
+        $roleAdmin = $this->getRoleAdmin();
+        $permitUpdateHour = $this->getPermitUpdate();
+        $roleAdmin->attachPermission($permitUpdateHour);
+        $admin->attachRole($roleAdmin);
+        $response = $this->actingAs($admin)->get('/hour-update/' .$hour->id);
+        $response->assertSessionHas('ALERT');
+    }
+
+
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
      */
@@ -112,5 +161,18 @@ class AdministratorTest extends TestCase
     private function getRoleAdmin()
     {
         return Role::factory()->create(['name' => 'administrator']);
+    }
+
+    private function getPermitUpdate()
+    {
+        return Permission::factory()->create(['name' => 'hour-update']);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
+     */
+    private function getRoleSuper()
+    {
+        return Role::factory()->create(['name' => 'superadministrator']);
     }
 }
