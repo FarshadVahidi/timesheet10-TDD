@@ -14,7 +14,7 @@ class UserTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function administrator_must_first_login()
+    public function user_must_first_login()
     {
         $this->withoutExceptionHandling();
 
