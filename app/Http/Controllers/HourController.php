@@ -18,6 +18,8 @@ class HourController extends Controller
             return view('super.addHour');
         }elseif($user->isAdmin()){
             return view('admin.addHour');
+        }elseif($user->isUser()){
+            return view('user.addHour');
         }else
         {
             return redirect(route('login'));
