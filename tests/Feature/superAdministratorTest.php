@@ -128,8 +128,12 @@ class superAdministratorTest extends TestCase
         $this->assertCount(1, Hour::all());
         $hour = Hour::first();
 
-        $this->actingAs($user)->get('/hour-update/' .$hour->id)->assertRedirect(route('login'));
+        $role_name = $this->getModel();
+        $roleNew = $this->getRoleName();
+        $role_name->attachRole($roleNew);
 
+        $response = $this->actingAs($role_name)->get('/hour-update/' .$hour->id);
+        $response->assertSessionHas('ALERT');
     }
 
     /** @test */
@@ -476,6 +480,11 @@ class superAdministratorTest extends TestCase
     private function getPermitCreateHour()
     {
         return Permission::factory()->create(['name' => 'hour-create']);
+    }
+
+    private function getRoleName()
+    {
+        return Role::factory()->create(['name' => 'role_name']);
     }
 
     private function getPermitUpdate()
