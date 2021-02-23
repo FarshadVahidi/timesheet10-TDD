@@ -94,9 +94,12 @@ class HourController extends Controller
                   return view('admin.edit-hour', compact('date'));
               else
                   return redirect()->back()->with('ALERT', 'YOU HAVE NO PERMISSION TO ACCESS!!!');
-          }
-        }else {
+          }elseif($user->hasRole('user')){
+              if($user->id == $date->user_id)
+                  return view('user.edit-hour', compact('date'));
+          }else {
               return redirect(route('login'));
+          }
         }
     }
 
