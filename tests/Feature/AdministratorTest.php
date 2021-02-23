@@ -160,7 +160,42 @@ class AdministratorTest extends TestCase
         $this->assertCount(5, Hour::all());
         $response = $this->actingAs($user)->get('/allMyHours')->assertViewIs('admin.allHours');
         $response->assertSeeInOrder(['1983/02/05', '1983/02/04', '1983/02/03', '1983/02/02', '1983/02/01']);
+    }
 
+
+    /** @test */
+    public function administrator_can_add_new_admin_and_user()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleAdmin();
+        $permit = $this->getPermitCreateUser();
+        $role->attachPermission($permit);
+        $user->attachRole($role);
+
+        $response = $this->actingAs($user)->get('/addNewPerson');
+        $response->assertViewIs('admin.registration');
+    }
+
+    /** @test */
+    public function administrator_send_post_request_to_add_new_user()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleAdmin();
+        $permit = $this->getPermitCreateUser();
+        $role->attachPermission($permit);
+        $user->attachRole($role);
+        $this->createRoleUser();
+
+        $this->actingAs($user)->post('/addNewPerson',['name'=> 'farshad', 'email' => 'farshad@app.com', 'password' => '12345678', 'role_id' => 'user' ]);
+        $response = $this->actingAs($user)->post('/addNewPerson',['name'=> 'farshad', 'email' => 'farshad1@app.com', 'password' => '12345678', 'role_id' => 'user' ]);
+
+        $this->assertCount(3, User::all());
+        $this->assertEquals('farshad', User::find(2)->name);
+        $response->assertSessionHas('USER-ADDED');
     }
 
 
@@ -203,5 +238,15 @@ class AdministratorTest extends TestCase
     private function getPermitReadHour()
     {
         return Permission::factory()->create(['name' => 'hour-read']);
+    }
+
+    private function getPermitCreateUser()
+    {
+        return Permission::factory()->create(['name' => 'users-create']);
+    }
+
+    private function createRoleUser()
+    {
+        return Role::factory()->create(['name' => 'user']);
     }
 }
