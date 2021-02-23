@@ -1,1 +1,1 @@
-<?php
+<p>super administrator dashboard</p>

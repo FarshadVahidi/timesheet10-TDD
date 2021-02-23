@@ -75,4 +75,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Hour::class)->findOrFail($id)->orderByRaw('date DESC')->get();
     }
+
+    public function isAdmin(): bool
+    {
+        return ($this->hasRole('administrator'));
+    }
 }
