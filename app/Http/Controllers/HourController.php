@@ -18,6 +18,8 @@ class HourController extends Controller
             return view('super.addHour');
         }elseif($user->isAdmin()){
             return view('admin.addHour');
+        }elseif($user->isUser()){
+            return view('user.addHour');
         }else
         {
             return redirect(route('login'));
@@ -37,6 +39,9 @@ class HourController extends Controller
             }elseif($user->hasRole('administrator')){
                 $allMyHours = request()->user()->userHours();
                 return view('admin.allHours', compact('allMyHours'));
+            }elseif($user->hasRole('user')){
+                $allMyHours = request()->user()->userHours();
+                return view('user.allHours', compact('allMyHours'));
             }
         }else{
             return redirect()->route('login');
@@ -92,9 +97,16 @@ class HourController extends Controller
                   return view('admin.edit-hour', compact('date'));
               else
                   return redirect()->back()->with('ALERT', 'YOU HAVE NO PERMISSION TO ACCESS!!!');
-          }
-        }else {
+          }elseif($user->hasRole('user')){
+              if($user->id == $date->user_id)
+                  return view('user.edit-hour', compact('date'));
+              else
+                  return redirect()->back()->with('ALERT', 'YOU HAVE NO PERMISSION TO ACCESS!!!');
+          }else {
               return redirect(route('login'));
+          }
+        }else{
+            return redirect()->back()->with('ALERT', 'YOU HAVE NO PERMISSION TO ACCESS!!!');
         }
     }
 

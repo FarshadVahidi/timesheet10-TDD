@@ -15,6 +15,8 @@ class DashboardController extends Controller
             return view('super/dashboard');
         }elseif($user->isAdmin()) {
             return view('admin/dashboard');
+        }elseif($user->isUser()){
+            return view('user/dashboard');
         }else{
             return redirect(route('login'));
         }
