@@ -77,7 +77,7 @@ class UserTest extends TestCase
 
 
     /** @test */
-    public function administrator_can_update_an_hour()
+    public function user_can_update_an_hour()
     {
         $this->withoutExceptionHandling();
 
