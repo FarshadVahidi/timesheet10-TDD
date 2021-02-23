@@ -75,6 +75,24 @@ class AdministratorTest extends TestCase
     }
 
 
+    /** @test */
+    public function administrator_duplicate_hour()
+    {
+        $this->withoutExceptionHandling();
+
+        $user = $this->getModel();
+        $role = $this->getRoleAdmin();
+        $permit = $this->getPermitCreateHour();
+        $role->attachPermission($permit);
+        $user->attachRole($role);
+        $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
+
+        $response = $this->actingAs($user)->post('/createNewHour', ['user_id' => $user->id, 'date' => '1983/02/01' , 'hour' => 800, 'nonWork' => 0]);
+        $response->assertSessionHas('DUPLICATE');
+        $response->assertStatus(302);
+    }
+
+
     /**
      * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|mixed
      */
